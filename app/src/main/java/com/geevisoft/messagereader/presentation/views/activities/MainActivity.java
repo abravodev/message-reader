@@ -1,10 +1,11 @@
 package com.geevisoft.messagereader.presentation.views.activities;
 
-import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.geevisoft.messagereader.R;
 import com.geevisoft.messagereader.domain.entities.Sms;
@@ -19,6 +20,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
 	private MainPresenter presenter;
+	private static final int REQUEST_PERMISSION_CODE = 23;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -27,13 +29,14 @@ public class MainActivity extends AppCompatActivity {
 
 		presenter = new MainPresenterImpl(new SmsProviderImpl(this	));
 
-
 		if(PermissionHelper.readSmsPermissionIsGranted(this)){
 			setupSmsList();
 		} else {
-			PermissionHelper.checkReadSmsPermission(this);
+			boolean requested = PermissionHelper.showReadSmsPermissionRequest(this, REQUEST_PERMISSION_CODE);
+			if(!requested){
+				showRequestPermissionAbout();
+			}
 		}
-
 	}
 
 	private void setupSmsList(){
@@ -43,12 +46,20 @@ public class MainActivity extends AppCompatActivity {
 		lv_smsList.setAdapter(smsListAdapter);
 	}
 
-
 	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
-		if(requestCode == 23){
-			setupSmsList();
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+		if(requestCode != REQUEST_PERMISSION_CODE){
+			return;
 		}
+		if(PermissionHelper.readSmsPermissionIsGranted(this)){
+			setupSmsList();
+		} else {
+			showRequestPermissionAbout();
+		}
+	}
+
+	private void showRequestPermissionAbout(){
+		Toast.makeText(this, "Permission is necessary to read sms. Please, grant permission through mobile settings.", Toast.LENGTH_LONG).show();
 	}
 }

@@ -23,23 +23,25 @@ public class PermissionHelper {
 		return isGranted(context, Manifest.permission.READ_SMS);
 	}
 
-	public static void showReadSmsPermissionRequest(Activity activity){
-		showPermissionRequest(activity, Manifest.permission.READ_SMS);
+	public static boolean showReadSmsPermissionRequest(Activity activity, int requestCode){
+		return showPermissionRequest(activity, Manifest.permission.READ_SMS, requestCode);
 	}
 
-	public static void checkReadSmsPermission(Activity activity){
-		checkPermission(activity, Manifest.permission.READ_SMS);
+	public static void checkReadSmsPermission(Activity activity, int requestCode){
+		checkPermission(activity, Manifest.permission.READ_SMS, requestCode);
 	}
 
-	public static void showPermissionRequest(Activity activity, String permission){
+	public static boolean showPermissionRequest(Activity activity, String permission, int requestCode){
 		if (!ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)) {
-			ActivityCompat.requestPermissions(activity, new String[]{ permission },23);
+			ActivityCompat.requestPermissions(activity, new String[]{ permission },requestCode);
+			return true;
 		}
+		return false;
 	}
 
-	public static void checkPermission(Activity activity, String permission){
+	public static void checkPermission(Activity activity, String permission, int requestCode){
 		if (isPending(activity, permission)) {
-			showPermissionRequest(activity, permission);
+			showPermissionRequest(activity, permission, requestCode);
 		}
 	}
 
